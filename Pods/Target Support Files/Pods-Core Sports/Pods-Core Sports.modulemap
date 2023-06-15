@@ -1,0 +1,6 @@
+framework module Pods_Core_Sports {
+  umbrella header "Pods-Core Sports-umbrella.h"
+
+  export *
+  module * { export * }
+}
