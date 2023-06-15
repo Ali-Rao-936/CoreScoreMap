@@ -7,6 +7,7 @@
 
 import UIKit
 import MapKit
+import CoreLocation
 
 class MapViewController: UIViewController {
 
@@ -16,28 +17,41 @@ class MapViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        mapView.delegate = self
+        locationSetup()
+        
         // Do any additional setup after loading the view.
-        var mUserLocation = CLLocation(latitude: 21.282778, longitude: -157.829444)
+//        var mUserLocation = CLLocation(latitude: 21.282778, longitude: -157.829444)
      //   mapView.centerToLocation(mUserLocation)
-            let mkAnnotation: MKPointAnnotation = MKPointAnnotation()
-                mkAnnotation.coordinate = CLLocationCoordinate2DMake(mUserLocation.coordinate.latitude, mUserLocation.coordinate.longitude)
-               mkAnnotation.title = setUsersClosestLocation(mLattitude: mUserLocation.coordinate.latitude, mLongitude: mUserLocation.coordinate.longitude)
+//            let mkAnnotation: MKPointAnnotation = MKPointAnnotation()
+//                mkAnnotation.coordinate = CLLocationCoordinate2DMake(mUserLocation.coordinate.latitude, mUserLocation.coordinate.longitude)
+//               mkAnnotation.title = setUsersClosestLocation(mLattitude: mUserLocation.coordinate.latitude, mLongitude: mUserLocation.coordinate.longitude)
         
              //   mapView.addAnnotation(mkAnnotation)
         
 //        let markerImageView = UIImageView(image: UIImage(named: "lolipop"))
 //        markerImageView.center = mapView.center
 //        mapView.addSubview(markerImageView)
-        locationManager.delegate = self
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager.distanceFilter = kCLDistanceFilterNone
-        locationManager.startUpdatingLocation()
+//        locationManager.delegate = self
+//        locationManager.requestWhenInUseAuthorization()
+//        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+//        locationManager.distanceFilter = kCLDistanceFilterNone
+//        locationManager.startUpdatingLocation()
         
-        if CLLocationManager.locationServicesEnabled() {
-            mapView.showsUserLocation = true
+        
+        
+    }
+    
+    func locationSetup() {
+        DispatchQueue.global().async { [self] in
+            if CLLocationManager.locationServicesEnabled() {
+                locationManager.requestAlwaysAuthorization()
+                locationManager.requestWhenInUseAuthorization()
+                locationManager.delegate = self
+                locationManager.desiredAccuracy = kCLLocationAccuracyBest
+                locationManager.startUpdatingLocation()
+                mapView.delegate = self
+                mapView.showsUserLocation = true
+            }
         }
     }
 
@@ -45,8 +59,20 @@ class MapViewController: UIViewController {
 }
 
 
-extension MapViewController : MKMapViewDelegate , CLLocationManagerDelegate{
+extension MapViewController : MKMapViewDelegate , CLLocationManagerDelegate {
     
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        
+        let mUserLocation:CLLocation = locations[0] as CLLocation
+        mapView.centerToLocation(mUserLocation)
+        let center = CLLocationCoordinate2D(latitude: mUserLocation.coordinate.latitude, longitude: mUserLocation.coordinate.longitude)
+        let mRegion = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
+        mapView.setRegion(mRegion, animated: true)
+
+    }
+    
+    
+    /*
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         let mUserLocation:CLLocation = locations[0] as CLLocation
        mapView.centerToLocation(mUserLocation)
@@ -54,10 +80,11 @@ extension MapViewController : MKMapViewDelegate , CLLocationManagerDelegate{
 //        let mRegion = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
 //        mapView.setRegion(mRegion, animated: true)
 //
-//        // Get user's Current Location and Drop a pin
-//    let mkAnnotation: MKPointAnnotation = MKPointAnnotation()
-//        mkAnnotation.coordinate = CLLocationCoordinate2DMake(mUserLocation.coordinate.latitude, mUserLocation.coordinate.longitude)
-//       mkAnnotation.title = setUsersClosestLocation(mLattitude: mUserLocation.coordinate.latitude, mLongitude: mUserLocation.coordinate.longitude)
+        // Get user's Current Location and Drop a pin
+    let mkAnnotation: MKPointAnnotation = MKPointAnnotation()
+        mkAnnotation.coordinate = CLLocationCoordinate2DMake(mUserLocation.coordinate.latitude, mUserLocation.coordinate.longitude)
+        print(mkAnnotation.coordinate)
+       mkAnnotation.title = setUsersClosestLocation(mLattitude: mUserLocation.coordinate.latitude, mLongitude: mUserLocation.coordinate.longitude)
 //
 //        mapView.addAnnotation(mkAnnotation)
     }
@@ -81,6 +108,7 @@ extension MapViewController : MKMapViewDelegate , CLLocationManagerDelegate{
         }
         return currentLocationStr
     }
+     */
 }
 
 
